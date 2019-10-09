@@ -128,6 +128,8 @@ function configureCommandlineSwitches(cliArgs) {
 //
 // 'disable-gpu': true
 //
+// NOTE: Changing this file requires a restart of VSCode.
+//
 // PLEASE DO NOT CHANGE WITHOUT UNDERSTANDING THE IMPACT
 {
 	// Enabled by default by VSCode to resolve color issues in the renderer
@@ -156,10 +158,10 @@ function configureCommandlineSwitches(cliArgs) {
 		const value = flagsConfig[flag];
 		if (value === true || value === 'true') {
 			if (flag === 'disable-gpu') {
-				app.disableHardwareAcceleration();
-			} else {
-				app.commandLine.appendArgument(flag);
+				app.disableHardwareAcceleration(); // needs to be called explicitly
 			}
+
+			app.commandLine.appendArgument(flag);
 		} else {
 			app.commandLine.appendSwitch(flag, value);
 		}

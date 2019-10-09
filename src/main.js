@@ -12,6 +12,7 @@ const lp = require('./vs/base/node/languagePacks');
 perf.mark('main:started');
 
 const path = require('path');
+const fs = require('fs');
 const bootstrap = require('./bootstrap');
 const paths = require('./paths');
 // @ts-ignore
@@ -113,13 +114,61 @@ async function onReady() {
  */
 function configureCommandlineSwitches(cliArgs) {
 
-	// Force pre-Chrome-60 color profile handling (for https://github.com/Microsoft/vscode/issues/51791)
-	app.commandLine.appendSwitch('disable-color-correct-rendering');
+	// Default config
+	let flagsConfig = {
+		// Force pre-Chrome-60 color profile handling (for https://github.com/Microsoft/vscode/issues/51791)
+		'disable-color-correct-rendering': true
+	};
+
+	const defaultFlagsConfigRaw =
+		`// Allows to pass flags to Chromium's command line.
+//
+// If you see rendering issues in VSCode and have a better experience
+// with software rendering, you can configure this by adding:
+//
+// 'disable-gpu': true
+//
+// PLEASE DO NOT CHANGE WITHOUT UNDERSTANDING THE IMPACT
+{
+	// Enabled by default by VSCode to resolve color issues in the renderer
+	// See https://github.com/Microsoft/vscode/issues/51791 for details
+	"disable-color-correct-rendering": true
+}`;
+
+	// Read or create the flags.json config file sync before app('ready')
+	const flagsConfigPath = path.join(userDataPath, 'User', 'flags.json');
+	try {
+		flagsConfig = JSON.parse(stripComments(fs.readFileSync(flagsConfigPath).toString()));
+	} catch (error) {
+		if (error && error.code === 'ENOENT') {
+			try {
+				fs.writeFileSync(flagsConfigPath, defaultFlagsConfigRaw);
+			} catch (error) {
+				console.error(error);
+			}
+		} else {
+			console.warn(`Unable to read flags.json configuration file, falling back to defaults (${error})`);
+		}
+	}
+
+	// Append each flag to Electron
+	Object.keys(flagsConfig).forEach(flag => {
+		const value = flagsConfig[flag];
+		if (value === true || value === 'true') {
+			if (flag === 'disable-gpu') {
+				app.disableHardwareAcceleration();
+			} else {
+				app.commandLine.appendArgument(flag);
+			}
+		} else {
+			app.commandLine.appendSwitch(flag, value);
+		}
+	});
 
 	// Support JS Flags
 	const jsFlags = getJSFlags(cliArgs);
 	if (jsFlags) {
-		app.commandLine.appendSwitch('--js-flags', jsFlags);
+		app.commandLine.appendSwitch('js-flags', jsFlags);
 	}
 }
 

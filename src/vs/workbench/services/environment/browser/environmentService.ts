@@ -89,6 +89,7 @@ export class BrowserWorkbenchEnvironmentService implements IWorkbenchEnvironment
 		this.keybindingsResource = joinPath(this.userRoamingDataHome, 'keybindings.json');
 		this.keyboardLayoutResource = joinPath(this.userRoamingDataHome, 'keyboardLayout.json');
 		this.localeResource = joinPath(this.userRoamingDataHome, 'locale.json');
+		this.flagsResource = joinPath(this.userRoamingDataHome, 'flags.json');
 		this.backupHome = joinPath(this.userRoamingDataHome, BACKUPS);
 		this.configuration.backupWorkspaceResource = joinPath(this.backupHome, options.workspaceId);
 		this.configuration.connectionToken = options.connectionToken || getCookieValue('vscode-tkn');
@@ -146,6 +147,7 @@ export class BrowserWorkbenchEnvironmentService implements IWorkbenchEnvironment
 	keybindingsResource: URI;
 	keyboardLayoutResource: URI;
 	localeResource: URI;
+	flagsResource: URI;
 	settingsSyncPreviewResource: URI;
 	userDataSyncLogResource: URI;
 	machineSettingsHome: URI;

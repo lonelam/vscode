@@ -144,6 +144,9 @@ export class EnvironmentService implements IEnvironmentService {
 	get localeResource(): URI { return resources.joinPath(this.userRoamingDataHome, 'locale.json'); }
 
 	@memoize
+	get flagsResource(): URI { return resources.joinPath(this.userRoamingDataHome, 'flags.json'); }
+
+	@memoize
 	get isExtensionDevelopment(): boolean { return !!this._args.extensionDevelopmentPath; }
 
 	@memoize

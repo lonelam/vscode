@@ -11,7 +11,7 @@ import { IConfigurationRegistry, Extensions as ConfigurationExtensions, Configur
 import { IWorkbenchActionRegistry, Extensions } from 'vs/workbench/common/actions';
 import { KeyMod, KeyCode } from 'vs/base/common/keyCodes';
 import { isWindows, isLinux, isMacintosh } from 'vs/base/common/platform';
-import { ToggleSharedProcessAction, ToggleDevToolsAction } from 'vs/workbench/electron-browser/actions/developerActions';
+import { ToggleSharedProcessAction, ToggleDevToolsAction, ConfigureFlagsAction } from 'vs/workbench/electron-browser/actions/developerActions';
 import { ZoomResetAction, ZoomOutAction, ZoomInAction, CloseCurrentWindowAction, SwitchWindow, QuickSwitchWindow, ReloadWindowWithExtensionsDisabledAction, NewWindowTabHandler, ShowPreviousWindowTabHandler, ShowNextWindowTabHandler, MoveWindowTabToNewWindowHandler, MergeWindowTabsHandlerHandler, ToggleWindowTabsBarHandler } from 'vs/workbench/electron-browser/actions/windowActions';
 import { SaveWorkspaceAsAction, DuplicateWorkspaceInNewWindowAction } from 'vs/workbench/electron-browser/actions/workspaceActions';
 import { ContextKeyExpr } from 'vs/platform/contextkey/common/contextkey';
@@ -21,6 +21,7 @@ import { ServicesAccessor } from 'vs/platform/instantiation/common/instantiation
 import { SupportsWorkspacesContext, IsMacContext, HasMacNativeTabsContext, IsDevelopmentContext } from 'vs/workbench/browser/contextkeys';
 import { NoEditorsVisibleContext, SingleEditorGroupsContext } from 'vs/workbench/common/editor';
 import { IElectronService } from 'vs/platform/electron/node/electron';
+import { IJSONContributionRegistry, Extensions as JSONExtensions } from 'vs/platform/jsonschemas/common/jsonContributionRegistry';
 
 // Actions
 (function registerActions(): void {
@@ -98,6 +99,7 @@ import { IElectronService } from 'vs/platform/electron/node/electron';
 	(function registerDeveloperActions(): void {
 		const developerCategory = nls.localize('developer', "Developer");
 		registry.registerWorkbenchAction(new SyncActionDescriptor(ToggleSharedProcessAction, ToggleSharedProcessAction.ID, ToggleSharedProcessAction.LABEL), 'Developer: Toggle Shared Process', developerCategory);
+		registry.registerWorkbenchAction(new SyncActionDescriptor(ConfigureFlagsAction, ConfigureFlagsAction.ID, ConfigureFlagsAction.LABEL), 'Developer: Configure Runtime Flags', developerCategory);
 		registry.registerWorkbenchAction(new SyncActionDescriptor(ReloadWindowWithExtensionsDisabledAction, ReloadWindowWithExtensionsDisabledAction.ID, ReloadWindowWithExtensionsDisabledAction.LABEL), 'Developer: Reload With Extensions Disabled', developerCategory);
 		registry.registerWorkbenchAction(new SyncActionDescriptor(ToggleDevToolsAction, ToggleDevToolsAction.ID, ToggleDevToolsAction.LABEL), 'Developer: Toggle Developer Tools', developerCategory);
 
@@ -339,5 +341,19 @@ import { IElectronService } from 'vs/platform/electron/node/electron';
 				'tags': ['usesOnlineServices']
 			}
 		}
+	});
+})();
+
+// JSON Schemas
+(function registerJSONSchemas(): void {
+	const flagsDefinitionFileSchemaId = 'vscode://schemas/flags';
+	const jsonRegistry = Registry.as<IJSONContributionRegistry>(JSONExtensions.JSONContribution);
+
+	jsonRegistry.registerSchema(flagsDefinitionFileSchemaId, {
+		id: flagsDefinitionFileSchemaId,
+		allowComments: true,
+		allowTrailingCommas: true,
+		description: 'Flags Definition file',
+		type: 'object'
 	});
 })();
